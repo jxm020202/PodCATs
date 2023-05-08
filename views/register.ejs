@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
+  <title>Register</title>
   <!-- Add your stylesheets and other resources here -->
 </head>
 <body>
   <% include('navbar') %>
 
-  <h1>Login</h1>
+  <h1>Register</h1>
   <% if (message) { %>
     <div><%= message %></div>
   <% } %>
-  <form action="/login" method="post">
+  <form action="/register" method="post">
     <div>
       <label for="username">Username:</label>
       <input type="text" name="username" id="username">
@@ -23,7 +23,7 @@
       <input type="password" name="password" id="password">
     </div>
     <div>
-      <input type="submit" value="Login">
+      <input type="submit" value="Register">
     </div>
   </form>
 </body>

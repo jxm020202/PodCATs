@@ -1,90 +1,157 @@
-//jshint esversion:6
+
 
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const _ = require("lodash");
 const mongoose = require("mongoose");
-
-
-const homeStartingContent = "Lacus vel facilisis volutpat est velit egestas dui id ornare. Semper auctor neque vitae tempus quam. Sit amet cursus sit amet dictum sit amet justo. Viverra tellus in hac habitasse. Imperdiet proin fermentum leo vel orci porta. Donec ultrices tincidunt arcu non sodales neque sodales ut. Mattis molestie a iaculis at erat pellentesque adipiscing. Magnis dis parturient montes nascetur ridiculus mus mauris vitae ultricies. Adipiscing elit ut aliquam purus sit amet luctus venenatis lectus. Ultrices vitae auctor eu augue ut lectus arcu bibendum at. Odio euismod lacinia at quis risus sed vulputate odio ut. Cursus mattis molestie a iaculis at erat pellentesque adipiscing.";
-const aboutContent = "Hac habitasse platea dictumst vestibulum rhoncus est pellentesque. Dictumst vestibulum rhoncus est pellentesque elit ullamcorper. Non diam phasellus vestibulum lorem sed. Platea dictumst quisque sagittis purus sit. Egestas sed sed risus pretium quam vulputate dignissim suspendisse. Mauris in aliquam sem fringilla. Semper risus in hendrerit gravida rutrum quisque non tellus orci. Amet massa vitae tortor condimentum lacinia quis vel eros. Enim ut tellus elementum sagittis vitae. Mauris ultrices eros in cursus turpis massa tincidunt dui.";
-const contactContent = "Scelerisque eleifend donec pretium vulputate sapien. Rhoncus urna neque viverra justo nec ultrices. Arcu dui vivamus arcu felis bibendum. Consectetur adipiscing elit duis tristique. Risus viverra adipiscing at in tellus integer feugiat. Sapien nec sagittis aliquam malesuada bibendum arcu vitae. Consequat interdum varius sit amet mattis. Iaculis nunc sed augue lacus. Interdum posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Pulvinar elementum integer enim neque. Ultrices gravida dictum fusce ut placerat orci nulla. Mauris in aliquam sem fringilla ut morbi tincidunt. Tortor posuere ac ut consequat semper viverra nam libero.";
+const session = require('express-session');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const User = require('./models/User');
+const flash = require('connect-flash');
 
 const app = express();
 
-
 app.set('view engine', 'ejs');
-
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
-mongoose.set('strictQuery', false );
-mongoose,mongoose.connect('mongodb://127.0.0.1:27017/blogDB' ,{ useNewUrlParser: true ,} );
+app.use(session({
+  secret: 'your_secret_key',
+  resave: false,
+  saveUninitialized: false
+}));
 
-const postSchema = {
-title: String,
-content: String
-};
+app.use(passport.initialize());
+app.use(passport.session());
 
-const Post = mongoose.model("Post", postSchema);
+app.use(session({
+  secret: 'your_secret_key',
+  resave: false,
+  saveUninitialized: false
+}));
+
+app.use(flash());
 
 
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
-app.get("/", function(req, res) {
-    Post.find().then(posts =>{
-      res.render("home", {
-        startingContent: homeStartingContent,
-        posts: posts
-        });
-    });
-});
-
-app.get( "/alumni" , function(req , res){
-    res.render("alumni" , {aboutContent: aboutContent})
-});
-
-app.get( "/mocks" , function(req , res){
-    res.render("mocks" , {contact: contactContent})
-});
-
-app.get( "/random" , function(req , res){
-    res.render("random" , {contact: contactContent})
-});
-
-app.get( "/compose" , function(req , res){
-    res.render("compose")
-});
-
-app.post("/compose", function(req , res){
-  console.log(req.body.postBody);
-  const post = new Post({
-    title:req.body.postTitle,
-    content: req.body.postBody
-  });
-post.save().then(()=> 
+const homeStartingContent = "Your starting content goes here";
+const posts = [
   {
-    console.log("Post added to DB succesfully");
-  })
-  .catch(err =>{
-    res.status(400).send("Unable to save post to database.");
+    title: "Post 1",
+    content: "This is the content for post 1."
+  },
+  {
+    title: "Post 2",
+    content: "This is the content for post 2."
+  },
+  {
+    title: "Post 3",
+    content: "This is the content for post 3."
+  }
+];
+
+
+mongoose.set('strictQuery', false );
+mongoose.connect('mongodb://127.0.0.1:27017/blogDB', { useNewUrlParser: true, useUnifiedTopology: true });
+
+
+// Your existing schemas and routes here
+
+// Additional routes for login and other pages
+app.get("/", function(req, res) {
+  // Your existing code to retrieve posts
+  res.render("home", {
+    startingContent: homeStartingContent,
+    posts: posts,
+    user: req.user
   });
-  res.redirect("/");
 });
 
-app.get("/posts/:postId", function(req, res){
-  const reqPostId =  req.params.postId;
-  Post.findOne({_id : reqPostId})
-  .then((foundpost) =>{
-  res.render("post", {title : foundpost.title, content : foundpost.content});
-})
+app.get('/login', function(req, res) {
+  res.render('login', { user: req.user, message: req.flash('error') });
+});
+
+app.post('/register', function(req, res) {
+  User.register(new User({username: req.body.username}), req.body.password, function(err, user) {
+    if (err) {
+      console.log(err);
+      res.redirect('/register');
+    } else {
+      passport.authenticate('local')(req, res, function() {
+        res.redirect('/');
+      });
+    }
+  });
+});
+
+
+app.get('/register', function(req, res) {
+  res.render('register', { user: req.user, message: req.flash('error') });
+});
+
+app.post('/login', function(req, res, next) {
+  passport.authenticate('local', function(err, user, info) {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      // Automatically register a new user
+      User.register(new User({username: req.body.username}), req.body.password, function(err, user) {
+        if (err) {
+          console.log(err);
+          return res.redirect('/login');
+        } else {
+          // Log in the new user
+          passport.authenticate('local')(req, res, function() {
+            return res.redirect('/');
+          });
+        }
+      });
+    } else {
+      // Log in existing user
+      req.logIn(user, function(err) {
+        if (err) {
+          return next(err);
+        }
+        return res.redirect('/');
+      });
+    }
+  })(req, res, next);
 });
 
 
 
+app.get('/logout', function(req, res) {
+  req.logout();
+  res.redirect('/login');
+});
 
+app.get('/catmocks', function(req, res) {
+  res.render('catmocks', { user: req.user });
+});
 
-app.listen(3000, function() {
-  console.log("Server started on port 3000");
+app.get('/connect', function(req, res) {
+  res.render('connect', { user: req.user });
+});
+
+app.get('/colleges', function(req, res) {
+  res.render('colleges', { user: req.user });
+});
+
+// Middleware to check if user is logged in
+function isLoggedIn(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect('/login');
+}
+
+app.listen(4000, function() {
+  console.log("Server started on port 4000");
 });
