@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comments</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+  <div class="container">
+    <h1><%= post.title %></h1>
+    <p>By <%= post.author.username %></p>
+    <hr>
+    <p><%= post.content %></p>
+    <hr>
+    <h2>Comments</h2>
+    <ul>
+        <% post.comments.forEach(function(comment) { %>
+            <li>
+                <strong><%= comment.author.username %></strong>: <%= comment.content %>
+            </li>
+        <% }); %>
+    </ul>
+    <% if (user) { %>
+      <form action="/posts/<%= post._id %>/comments" method="post">
+          <div>
+              <label for="commentContent">Add a comment:</label>
+              <textarea name="commentContent" id="commentContent" rows="4" cols="50"></textarea>
+          </div>
+          <button type="submit">Submit</button>
+      </form>
+    <% } else { %>
+      <p>You need to <a href="/login">login</a> to add a comment.</p>
+    <% } %>
+  </div>
+
+</body>
+</html>

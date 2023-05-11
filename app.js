@@ -242,47 +242,42 @@ app.post("/posts/:id/upvote", isLoggedIn, async function (req, res) {
 
 
 
-
-app.get("/posts/:id/comments", function (req, res) {
-  Post.findById(req.params.id).populate("author").populate({ path: "comments", populate: { path: "author" } }).exec(function (err, post) {
-    if (err) {
-      console.log(err);
-    } else {
-      res.render("comments", { post: post, user: req.user });
-    }
-  });
+app.get('/posts/:id/comments', function(req, res) {
+  Post.findById(req.params.id)
+    .populate('author')
+    .populate({
+      path: 'comments',
+      populate: {
+        path: 'author',
+      },
+    })
+    .exec()
+    .then((post) => {
+      res.render('comments', { post: post, user: req.user });
+    })
+    .catch((error) => {
+      console.log('Error fetching comments:', error);
+      res.status(500).send('Error fetching comments.');
+    });
 });
 
-app.get("/posts/:id/comments", function (req, res) {
-  Post.findById(req.params.id).populate("author").populate({ path: "comments", populate: { path: "author" } }).exec(function (err, post) {
-    if (err) {
-      console.log(err);
-    } else {
-      res.render("comments", { post: post, user: req.user });
-    }
-  });
-});
 
-app.post("/posts/:id/comments", isLoggedIn, function (req, res) {
+app.post("/posts/:id/comments", isLoggedIn, async function (req, res) {
   const newComment = new Comment({
     content: req.body.commentContent,
     author: req.user._id
   });
 
-  newComment.save(function (err, savedComment) {
-    if (err) {
-      console.log(err);
-    } else {
-      Post.findByIdAndUpdate(req.params.id, { $push: { comments: savedComment._id } }, function (err) {
-        if (err) {
-          console.log(err);
-        } else {
-          res.redirect("/posts/" + req.params.id + "/comments");
-        }
-      });
-    }
-  });
+  try {
+    const savedComment = await newComment.save();
+    await Post.findByIdAndUpdate(req.params.id, { $push: { comments: savedComment._id } });
+    res.redirect("/posts/" + req.params.id + "/comments");
+  } catch (err) {
+    console.log(err);
+  }
 });
+
+
 
 
 // Middleware to check if user is logged in

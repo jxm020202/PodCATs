@@ -82,3 +82,13 @@ html {
     border-bottom-color: #ff8b60;
   }
   
+  .comments-link {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .comments-link:hover {
+    text-decoration: underline;
+    color: inherit;
+  }
+  

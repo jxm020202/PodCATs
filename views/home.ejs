@@ -33,7 +33,8 @@
         </button>
         
         <span class="upvote-count"><%= post.points %></span> points by <%= post.author.username %> |
-        <a href="/posts/<%= post._id %>/comments">Comments</a>
+        <a class="comments-link" href="/posts/<%= post._id %>/comments"> <%= post.comments.length %> Comments</a>
+        
       </p>
     </div>
   <% }); %>
