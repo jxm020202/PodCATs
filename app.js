@@ -10,6 +10,9 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const User = require('./models/User');
 const flash = require('connect-flash');
+const Post = require("./models/Post");
+const Comment = require("./models/Comment");
+
 
 const app = express();
 
@@ -64,14 +67,23 @@ mongoose.connect('mongodb://127.0.0.1:27017/blogDB', { useNewUrlParser: true, us
 // Your existing schemas and routes here
 
 // Additional routes for login and other pages
-app.get("/", function(req, res) {
-  // Your existing code to retrieve posts
-  res.render("home", {
-    startingContent: homeStartingContent,
-    posts: posts,
-    user: req.user
-  });
+
+
+app.get("/", async function (req, res) {
+  try {
+    const posts = await Post.find({}).populate("author").exec();
+    res.render("home", {
+      startingContent: homeStartingContent,
+      posts: posts,
+      user: req.user,
+    });
+  } catch (err) {
+    console.log(err);
+  }
 });
+
+
+
 
 app.get('/login', function(req, res) {
   res.render('login', { user: req.user, message: req.flash('error') });
@@ -128,9 +140,36 @@ app.post('/login', function(req, res, next) {
 
 
 app.get('/logout', function(req, res) {
-  req.logout();
-  res.redirect('/login');
+  req.logout(function(err) {
+    if (err) {
+      console.log(err);
+      return res.redirect('/login');
+    }
+    res.redirect('/login');
+  });
 });
+
+app.get("/compose", isLoggedIn, function (req, res) {
+  res.render("compose", { user: req.user });
+});
+
+app.post("/compose", isLoggedIn, async function (req, res) {
+  const newPost = new Post({
+    title: req.body.title,
+    content: req.body.content,
+    points: 0,
+    author: req.user._id,
+  });
+
+  try {
+    await newPost.save();
+    res.redirect("/");
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+
 
 app.get('/catmocks', function(req, res) {
   res.render('catmocks', { user: req.user });
@@ -143,6 +182,77 @@ app.get('/connect', function(req, res) {
 app.get('/colleges', function(req, res) {
   res.render('colleges', { user: req.user });
 });
+
+app.get("/posts/:id", async function (req, res) {
+  try {
+    const post = await Post.findById(req.params.id).populate("author").exec();
+    if (!post) {
+      res.status(404).send("Post not found");
+    } else {
+      res.render("post", {
+        post: post, // Pass the entire post object
+        user: req.user,
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error occurred");
+  }
+});
+
+
+
+app.post("/posts/:id/upvote", isLoggedIn, function (req, res) {
+  Post.findByIdAndUpdate(req.params.id, { $inc: { points: 1 } }, function (err) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.redirect("/");
+    }
+  });
+});
+
+app.get("/posts/:id/comments", function (req, res) {
+  Post.findById(req.params.id).populate("author").populate({ path: "comments", populate: { path: "author" } }).exec(function (err, post) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.render("comments", { post: post, user: req.user });
+    }
+  });
+});
+
+app.get("/posts/:id/comments", function (req, res) {
+  Post.findById(req.params.id).populate("author").populate({ path: "comments", populate: { path: "author" } }).exec(function (err, post) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.render("comments", { post: post, user: req.user });
+    }
+  });
+});
+
+app.post("/posts/:id/comments", isLoggedIn, function (req, res) {
+  const newComment = new Comment({
+    content: req.body.commentContent,
+    author: req.user._id
+  });
+
+  newComment.save(function (err, savedComment) {
+    if (err) {
+      console.log(err);
+    } else {
+      Post.findByIdAndUpdate(req.params.id, { $push: { comments: savedComment._id } }, function (err) {
+        if (err) {
+          console.log(err);
+        } else {
+          res.redirect("/posts/" + req.params.id + "/comments");
+        }
+      });
+    }
+  });
+});
+
 
 // Middleware to check if user is logged in
 function isLoggedIn(req, res, next) {

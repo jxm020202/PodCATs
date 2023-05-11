@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home</title>
+  <title>Compose a new post</title>
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
-  <nav style="background-color: #872254;">
+  <nav style="background-color: orange;">
     <ul style="display: flex; list-style: none; justify-content: flex-end; padding: 10px;">
       <li style="margin-right: 10px;"><a href="/catmocks">Cat Mocks</a></li>
       <li style="margin-right: 10px;"><a href="/connect">Connect</a></li>
@@ -22,20 +22,20 @@
   </nav>
 
   <div class="container">
-    <h1>Latest Posts</h1>
-    <% posts.forEach(function(post) { %>
+    <h1>Compose a new post</h1>
+    <form action="/compose" method="post">
       <div>
-        <h3><a href="/posts/<%= post._id %>"><%= post.title %></a></h3>
-        <p>
-          <%= post.points %> points by <%= post.author.username %> | <a href="/posts/<%= post._id %>/comments">Comments</a>
-        </p>
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required>
       </div>
-    <% }); %>
-    <% if (user) { %>
-      <div style="text-align: right; margin-top: 20px;">
-        <a href="/compose">Add a new post</a>
+      <div>
+        <label for="content">Content:</label>
+        <textarea id="content" name="content" rows="10" cols="30" required></textarea>
       </div>
-    <% } %>
+      <div>
+        <button type="submit">Submit</button>
+      </div>
+    </form>
   </div>
 
 </body>

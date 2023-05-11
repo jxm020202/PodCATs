@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home</title>
+  <title><%= title %></title>
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
 
-  <nav style="background-color: #872254;">
+  <nav style="background-color: orange;">
     <ul style="display: flex; list-style: none; justify-content: flex-end; padding: 10px;">
       <li style="margin-right: 10px;"><a href="/catmocks">Cat Mocks</a></li>
       <li style="margin-right: 10px;"><a href="/connect">Connect</a></li>
@@ -21,22 +21,8 @@
     </ul>
   </nav>
 
-  <div class="container">
-    <h1>Latest Posts</h1>
-    <% posts.forEach(function(post) { %>
-      <div>
-        <h3><a href="/posts/<%= post._id %>"><%= post.title %></a></h3>
-        <p>
-          <%= post.points %> points by <%= post.author.username %> | <a href="/posts/<%= post._id %>/comments">Comments</a>
-        </p>
-      </div>
-    <% }); %>
-    <% if (user) { %>
-      <div style="text-align: right; margin-top: 20px;">
-        <a href="/compose">Add a new post</a>
-      </div>
-    <% } %>
-  </div>
+  <!-- Include the main content -->
+  <%- body %>
 
 </body>
 </html>
