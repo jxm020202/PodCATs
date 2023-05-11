@@ -4,13 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cat Mocks</title>
-  <!-- Add your stylesheets and other resources here -->
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-  <%- include('navbar') %>
-
-  <h1>Cat Mocks</h1>
-  <!-- Add cat mocks content here -->
+  <nav style="background-color: #872254;">
+    <ul style="display: flex; list-style: none; justify-content: flex-end; padding: 10px;">
+      <li style="margin-right: 10px;"><a href="/">Home</a></li>
+      <li style="margin-right: 10px;"><a href="/catmocks">Cat Mocks</a></li>
+      <li style="margin-right: 10px;"><a href="/connect">Connect</a></li>
+      <% if (user) { %>
+        <li style="margin-right: 10px;"><a href="/logout">Logout</a></li>
+      <% } else { %>
+        <li style="margin-right: 10px;"><a href="/login">Login</a></li>
+      <% } %>
+      <li><a href="/colleges">Colleges</a></li>
+      <% if (user && user.role === 'admin') { %>
+        <div style="text-align: right; margin-top: 20px;">
+          <a href="/compose">Add a new post</a>
+        </div>
+      <% } %>
+    </ul>
+  </nav>
 
 </body>
 </html>
