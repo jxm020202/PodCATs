@@ -31,7 +31,7 @@
             <span class="upvote-arrow"></span>
           </button>
           
-          <span class="upvote-count"><%= post.points %></span> points by <%= post.author.username %> |
+          <span class="upvote-count"><%= post.points %></span> post by <%= post.author.username %> |
           <a class="comments-link" href="/posts/<%= post._id %>/comments" data-comment-count="<%= post.comments.length %>">Comments (<%= post.comments.length %>)</a>
 
           

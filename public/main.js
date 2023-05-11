@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (response.ok) {
         const updatedPost = await response.json();
         button.querySelector(".upvote-arrow").classList.toggle("upvoted");
-        button.nextElementSibling.textContent = `${updatedPost.points} points`;
+        button.nextElementSibling.textContent = `${updatedPost.points}`;
       }
     });
   });
