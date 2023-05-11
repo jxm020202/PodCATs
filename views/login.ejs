@@ -4,10 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
-  <!-- Add your stylesheets and other resources here -->
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-  <% include('navbar') %>
+  <nav style="background-color: #872254;">
+    <ul style="display: flex; list-style: none; justify-content: flex-end; padding: 10px;">
+      <li style="margin-right: 10px;"><a href="/">Home</a></li>
+      <li style="margin-right: 10px;"><a href="/catmocks">Cat Mocks</a></li>
+      <li style="margin-right: 10px;"><a href="/connect">Connect</a></li>
+      <% if (user) { %>
+        <li style="margin-right: 10px;"><a href="/logout">Logout</a></li>
+      <% } else { %>
+        <li style="margin-right: 10px;"><a href="/login">Login</a></li>
+      <% } %>
+      <li><a href="/colleges">Colleges</a></li>
+    </ul>
+  </nav>
 
   <h1>Login</h1>
   <% if (message) { %>

@@ -8,7 +8,19 @@
 </head>
 <body>
 
-  <% include('navbar') %>
+  <nav style="background-color: #872254;">
+    <ul style="display: flex; list-style: none; justify-content: flex-end; padding: 10px;">
+      <li style="margin-right: 10px;"><a href="/">Home</a></li>
+      <li style="margin-right: 10px;"><a href="/catmocks">Cat Mocks</a></li>
+      <li style="margin-right: 10px;"><a href="/connect">Connect</a></li>
+      <% if (user) { %>
+        <li style="margin-right: 10px;"><a href="/logout">Logout</a></li>
+      <% } else { %>
+        <li style="margin-right: 10px;"><a href="/login">Login</a></li>
+      <% } %>
+      <li><a href="/colleges">Colleges</a></li>
+    </ul>
+  </nav>
 
   <div class="container">
     <h1><%= post.title %></h1>

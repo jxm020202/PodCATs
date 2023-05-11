@@ -31,11 +31,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
   commentLinks.forEach((link) => {
     link.addEventListener("mouseenter", function () {
-      link.textContent = "Add comment";
+      const count = link.dataset.commentCount;
+      link.textContent = count === "0" ? "Be the first one to comment" : "Add comment";
     });
-
+  
     link.addEventListener("mouseleave", function () {
-      link.textContent = "Comments";
+      const count = link.dataset.commentCount;
+      link.textContent = `Comments (${count})`;
     });
   });
 });
