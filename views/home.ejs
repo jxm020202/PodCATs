@@ -21,22 +21,30 @@
     </ul>
   </nav>
 
-  <div class="container">
-    <h1>Latest Posts</h1>
-    <% posts.forEach(function(post) { %>
-      <div>
-        <h3><a href="/posts/<%= post._id %>"><%= post.title %></a></h3>
-        <p>
-          <%= post.points %> points by <%= post.author.username %> | <a href="/posts/<%= post._id %>/comments">Comments</a>
-        </p>
-      </div>
-    <% }); %>
-    <% if (user) { %>
-      <div style="text-align: right; margin-top: 20px;">
-        <a href="/compose">Add a new post</a>
-      </div>
-    <% } %>
-  </div>
+
+<div class="container">
+  <h1>Latest Posts</h1>
+  <% posts.forEach(function(post) { %>
+    <div>
+      <h3><a href="/posts/<%= post._id %>"><%= post.title %></a></h3>
+      <p>
+        <button class="upvote-button <%= user && post.upvotes.includes(user._id) ? 'upvoted' : '' %>" data-post-id="<%= post._id %>">
+          <span class="upvote-arrow"></span>
+        </button>
+        
+        <span class="upvote-count"><%= post.points %></span> points by <%= post.author.username %> |
+        <a href="/posts/<%= post._id %>/comments">Comments</a>
+      </p>
+    </div>
+  <% }); %>
+  <% if (user) { %>
+    <div style="text-align: right; margin-top: 20px;">
+      <a href="/compose">Add a new post</a>
+    </div>
+  <% } %>
+</div>
+
+<script src="/main.js"></script> <!-- Updated script source -->
 
 </body>
 </html>

@@ -202,15 +202,46 @@ app.get("/posts/:id", async function (req, res) {
 
 
 
-app.post("/posts/:id/upvote", isLoggedIn, function (req, res) {
-  Post.findByIdAndUpdate(req.params.id, { $inc: { points: 1 } }, function (err) {
-    if (err) {
-      console.log(err);
-    } else {
-      res.redirect("/");
+
+
+app.post("/posts/:id/upvote", isLoggedIn, async function (req, res) {
+  try {
+    const postId = req.params.id;
+    const userId = req.user._id;
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).send("Post not found");
     }
-  });
+
+    const isUpvoted = post.upvotes.includes(userId);
+
+    let updatedPost;
+    if (isUpvoted) {
+      // Remove the upvote
+      updatedPost = await Post.findByIdAndUpdate(
+        postId,
+        { $pull: { upvotes: userId }, $inc: { points: -1 } },
+        { new: true }
+      );
+    } else {
+      // Add the upvote
+      updatedPost = await Post.findByIdAndUpdate(
+        postId,
+        { $addToSet: { upvotes: userId }, $inc: { points: 1 } },
+        { new: true }
+      );
+    }
+
+    res.json(updatedPost);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error occurred");
+  }
 });
+
+
+
 
 app.get("/posts/:id/comments", function (req, res) {
   Post.findById(req.params.id).populate("author").populate({ path: "comments", populate: { path: "author" } }).exec(function (err, post) {
