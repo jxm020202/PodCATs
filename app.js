@@ -71,7 +71,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/blogDB', { useNewUrlParser: true, us
 
 app.get("/", async function (req, res) {
   try {
-    const posts = await Post.find({ destination: { $ne: 'catmocks' } }).populate("author").exec(); // Filter posts for the Home page
+    const posts = await Post.find({}).populate("author").exec();
     res.render("home", {
       startingContent: homeStartingContent,
       posts: posts,
@@ -154,14 +154,11 @@ app.get("/compose", isLoggedIn, function (req, res) {
 });
 
 app.post("/compose", isLoggedIn, async function (req, res) {
-  const destination = req.body.destination; // Get the destination from the request body
-
   const newPost = new Post({
     title: req.body.title,
     content: req.body.content,
     points: 0,
     author: req.user._id,
-    destination: destination, // Set the destination in the new post
   });
 
   try {
@@ -174,20 +171,9 @@ app.post("/compose", isLoggedIn, async function (req, res) {
 
 
 
-
-app.get("/catmocks", async function (req, res) {
-  try {
-    const posts = await Post.find({ destination: 'catmocks' }); // Filter posts for the Catmocks page
-    res.render("catmocks", {
-      posts: posts,
-      user: req.user,
-    });
-  } catch (err) {
-    console.log(err);
-  }
+app.get('/catmocks', function(req, res) {
+  res.render('catmocks', { user: req.user });
 });
-
-
 
 app.get('/connect', function(req, res) {
   res.render('connect', { user: req.user });
